@@ -1,14 +1,14 @@
 -- awr_topevents.sql
--- AWR Top Events Report, a version of "Top 5 Timed Events" but across SNAP_IDs with AAS metric 
+-- AWR Top Events Report, a version of "Top 5 Timed Events" but across SNAP_IDs with AAS metric
 -- Karl Arao, Oracle ACE (bit.ly/karlarao), OCP-DBA, RHCE
 -- http://karlarao.wordpress.com
 --
--- Changes: 
+-- Changes:
 -- 20100427     included the columns "tm, inst, dur" and "event_rank"
 -- 20100511     added timestamp to filter specific workload periods, must uncomment to use
--- 20120120     added a section to compute for "CPU wait" (new metric in 11g) to include the 
+-- 20120120     added a section to compute for "CPU wait" (new metric in 11g) to include the
 --               "unaccounted for DB Time" on high run queue or CPU intensive workloads
--- 20120420     added NULLIF on pctdbt for very idle databases                
+-- 20120420     added NULLIF on pctdbt for very idle databases
 
 set feedback off pages 0 term off head on und off trimspool on echo off lines 4000 colsep ','
 
@@ -32,19 +32,19 @@ select instance_number instancenumber from v$instance;
 set pagesize 50000
 set linesize 550
 
-col instname    format a15              
-col hostname    format a30              
-col snap_id     format 99999            heading snap_id       -- "snapid"   
-col tm          format a17              heading tm            -- "tm"       
-col inst        format 90               heading inst          -- "inst"     
-col dur         format 999990.00        heading dur           -- "dur"      
-col event       format a55              heading event         -- "Event"    
+col instname    format a15
+col hostname    format a30
+col snap_id     format 99999            heading snap_id       -- "snapid"
+col tm          format a17              heading tm            -- "tm"
+col inst        format 90               heading inst          -- "inst"
+col dur         format 999990.00        heading dur           -- "dur"
+col event       format a55              heading event         -- "Event"
 col event_rank  format 90               heading event_rank    -- "EventRank"
-col waits       format 9999999990.00    heading waits         -- "Waits"    
-col time        format 9999999990.00    heading time          -- "Timesec"  
-col avgwt       format 99990.00         heading avgwt         -- "Avgwtms"  
+col waits       format 9999999990.00    heading waits         -- "Waits"
+col time        format 9999999990.00    heading time          -- "Timesec"
+col avgwt       format 99990.00         heading avgwt         -- "Avgwtms"
 col pctdbt      format 9990.0           heading pctdbt        -- "DBTimepct"
-col aas         format 990.0            heading aas           -- "Aas"      
+col aas         format 990.0            heading aas           -- "Aas"
 col wait_class  format a15              heading wait_class    -- "WaitClass"
 
 VARIABLE  g_retention  NUMBER
@@ -54,8 +54,8 @@ SET VERIFY OFF
 DECLARE
   v_default  NUMBER(3) := &p_default;
   v_max      NUMBER(3) := &p_max;
-BEGIN    
-  select 
+BEGIN
+  select
     ((TRUNC(SYSDATE) + RETENTION - TRUNC(SYSDATE)) * 86400)/60/60/24 AS RETENTION_DAYS
     into :g_retention
   from dba_hist_wr_control
@@ -65,46 +65,46 @@ BEGIN
     :g_retention := v_max;
   else
     :g_retention := v_default;
-  end if; 
+  end if;
 END;
 /
 
 spool awr_topevents-tableau-&_instname-&_hostname..csv
 select trim('&_instname') instname, trim('&_dbid') db_id, trim('&_hostname') hostname, snap_id, tm, inst, dur, event, event_rank, waits, time, avgwt, pctdbt, aas, wait_class
-from 
-      (select snap_id, TO_CHAR(tm,'MM/DD/YY HH24:MI:SS') tm, inst, dur, event, waits, time, avgwt, pctdbt, aas, wait_class, 
+from
+      (select snap_id, TO_CHAR(tm,'MM/DD/YY HH24:MI:SS') tm, inst, dur, event, waits, time, avgwt, pctdbt, aas, wait_class,
             DENSE_RANK() OVER (
           PARTITION BY snap_id ORDER BY time DESC) event_rank
-      from 
+      from
               (
-              select * from 
-                    (select * from 
-                          (select 
+              select * from
+                    (select * from
+                          (select
                             s0.snap_id snap_id,
                             s0.END_INTERVAL_TIME tm,
                             s0.instance_number inst,
-                            round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                    + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                    + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                            round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                    + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                    + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                     + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) dur,
                             e.event_name event,
                             e.total_waits - nvl(b.total_waits,0)       waits,
                             round ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000000, 2)  time,     -- THIS IS EVENT (sec)
                             round (decode ((e.total_waits - nvl(b.total_waits, 0)), 0, to_number(NULL), ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000) / (e.total_waits - nvl(b.total_waits,0))), 2) avgwt,
                             ((round ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000000, 2)) / NULLIF(((s5t1.value - nvl(s5t0.value,0)) / 1000000),0))*100 as pctdbt,     -- THIS IS EVENT (sec) / DB TIME (sec)
-                            (round ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                                            + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                                            + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                            (round ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                                            + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                                            + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                                             + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) aas,     -- THIS IS EVENT (min) / SnapDur (min) TO GET THE % DB CPU ON AAS
                             e.wait_class wait_class
-                            from 
+                            from
                                  dba_hist_snapshot s0,
                                  dba_hist_snapshot s1,
                                  dba_hist_system_event b,
                                  dba_hist_system_event e,
                                  dba_hist_sys_time_model s5t0,
                                  dba_hist_sys_time_model s5t1
-                            where 
+                            where
                               s0.dbid                   = &_dbid            -- CHANGE THE DBID HERE!
                               AND s1.dbid               = s0.dbid
                               and b.dbid(+)             = s0.dbid
@@ -127,39 +127,39 @@ from
                                     and b.event_id            = e.event_id
                                     and e.wait_class          != 'Idle'
                                     and e.total_waits         > nvl(b.total_waits,0)
-                                    and e.event_name not in ('smon timer', 
-                                                             'pmon timer', 
+                                    and e.event_name not in ('smon timer',
+                                                             'pmon timer',
                                                              'dispatcher timer',
                                                              'dispatcher listen timer',
                                                              'rdbms ipc message')
                                   order by snap_id, time desc, waits desc, event)
                     union all
-                              select 
+                              select
                                        s0.snap_id snap_id,
                                        s0.END_INTERVAL_TIME tm,
                                        s0.instance_number inst,
-                                       round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                            + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                            + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                                       round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                            + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                            + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                             + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) dur,
                                         'CPU time',
                                         0,
                                         round ((s6t1.value - s6t0.value) / 1000000, 2) as time,     -- THIS IS DB CPU (sec)
                                         0,
                                         ((round ((s6t1.value - s6t0.value) / 1000000, 2)) / NULLIF(((s5t1.value - nvl(s5t0.value,0)) / 1000000),0))*100 as pctdbt,     -- THIS IS DB CPU (sec) / DB TIME (sec)..TO GET % OF DB CPU ON DB TIME FOR TOP 5 TIMED EVENTS SECTION
-                                        (round ((s6t1.value - s6t0.value) / 1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                                                    + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                                                    + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                                        (round ((s6t1.value - s6t0.value) / 1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                                                    + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                                                    + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                                                     + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) aas,  -- THIS IS DB CPU (min) / SnapDur (min) TO GET THE % DB CPU ON AAS
                                         'CPU'
-                                      from 
+                                      from
                                         dba_hist_snapshot s0,
                                         dba_hist_snapshot s1,
                                         dba_hist_sys_time_model s6t0,
                                         dba_hist_sys_time_model s6t1,
                                         dba_hist_sys_time_model s5t0,
                                         dba_hist_sys_time_model s5t1
-                                      WHERE 
+                                      WHERE
                                       s0.dbid                   = &_dbid              -- CHANGE THE DBID HERE!
                                       AND s1.dbid               = s0.dbid
                                       AND s6t0.dbid            = s0.dbid
@@ -182,7 +182,7 @@ from
                                       AND s5t0.stat_name       = 'DB time'
                                       AND s5t1.stat_name       = s5t0.stat_name
                     union all
-                                      (select 
+                                      (select
                                                dbtime.snap_id,
                                                dbtime.tm,
                                                dbtime.inst,
@@ -195,30 +195,30 @@ from
                                                 round(dbtime.aas - accounted_dbtime.aas, 2) aas,     -- AAS OF UNACCOUNTED FOR DB TIME
                                                 'CPU wait'
                                       from
-                                                  (select  
-                                                     s0.snap_id, 
+                                                  (select
+                                                     s0.snap_id,
                                                      s0.END_INTERVAL_TIME tm,
                                                      s0.instance_number inst,
-                                                    round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                                    + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                                    + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                                                    round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                                    + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                                    + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                                     + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) dur,
                                                     'DB time',
                                                     0,
                                                     round ((s5t1.value - s5t0.value) / 1000000, 2) as time,     -- THIS IS DB time (sec)
                                                     0,
                                                     0,
-                                                     (round ((s5t1.value - s5t0.value) / 1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                                                                    + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                                                                    + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                                                     (round ((s5t1.value - s5t0.value) / 1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                                                                    + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                                                                    + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                                                                     + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) aas,
                                                     'DB time'
-                                                  from 
+                                                  from
                                                                     dba_hist_snapshot s0,
                                                                     dba_hist_snapshot s1,
                                                                     dba_hist_sys_time_model s5t0,
                                                                     dba_hist_sys_time_model s5t1
-                                                                  WHERE 
+                                                                  WHERE
                                                                   s0.dbid                   = &_dbid              -- CHANGE THE DBID HERE!
                                                                   AND s1.dbid               = s0.dbid
                                                                   AND s5t0.dbid            = s0.dbid
@@ -231,34 +231,34 @@ from
                                                                   AND s5t0.snap_id         = s0.snap_id
                                                                   AND s5t1.snap_id         = s0.snap_id + 1
                                                                   AND s5t0.stat_name       = 'DB time'
-                                                                  AND s5t1.stat_name       = s5t0.stat_name) dbtime, 
-                                                  (select snap_id, inst, sum(time) time, sum(AAS) aas from 
-                                                          (select * from (select 
+                                                                  AND s5t1.stat_name       = s5t0.stat_name) dbtime,
+                                                  (select snap_id, inst, sum(time) time, sum(AAS) aas from
+                                                          (select * from (select
                                                                 s0.snap_id snap_id,
                                                                 s0.END_INTERVAL_TIME tm,
                                                                 s0.instance_number inst,
-                                                                round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                                                        + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                                                        + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                                                                round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                                                        + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                                                        + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                                                         + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) dur,
                                                                 e.event_name event,
                                                                 e.total_waits - nvl(b.total_waits,0)       waits,
                                                                 round ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000000, 2)  time,     -- THIS IS EVENT (sec)
                                                                 round (decode ((e.total_waits - nvl(b.total_waits, 0)), 0, to_number(NULL), ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000) / (e.total_waits - nvl(b.total_waits,0))), 2) avgwt,
                                                                 ((round ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000000, 2)) / NULLIF(((s5t1.value - nvl(s5t0.value,0)) / 1000000),0))*100 as pctdbt,     -- THIS IS EVENT (sec) / DB TIME (sec)
-                                                                (round ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                                                                                + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                                                                                + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                                                                (round ((e.time_waited_micro - nvl(b.time_waited_micro,0))/1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                                                                                + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                                                                                + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                                                                                 + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) aas,     -- THIS IS EVENT (min) / SnapDur (min) TO GET THE % DB CPU ON AAS
                                                                 e.wait_class wait_class
-                                                          from 
+                                                          from
                                                                dba_hist_snapshot s0,
                                                                dba_hist_snapshot s1,
                                                                dba_hist_system_event b,
                                                                dba_hist_system_event e,
                                                                dba_hist_sys_time_model s5t0,
                                                                dba_hist_sys_time_model s5t1
-                                                          where 
+                                                          where
                                                             s0.dbid                   = &_dbid            -- CHANGE THE DBID HERE!
                                                             AND s1.dbid               = s0.dbid
                                                             and b.dbid(+)             = s0.dbid
@@ -281,39 +281,39 @@ from
                                                             and b.event_id            = e.event_id
                                                             and e.wait_class          != 'Idle'
                                                             and e.total_waits         > nvl(b.total_waits,0)
-                                                            and e.event_name not in ('smon timer', 
-                                                                                     'pmon timer', 
+                                                            and e.event_name not in ('smon timer',
+                                                                                     'pmon timer',
                                                                                      'dispatcher timer',
                                                                                      'dispatcher listen timer',
                                                                                      'rdbms ipc message')
                                                           order by snap_id, time desc, waits desc, event)
                                                     union all
-                                                          select 
+                                                          select
                                                                    s0.snap_id snap_id,
                                                                    s0.END_INTERVAL_TIME tm,
                                                                    s0.instance_number inst,
-                                                                   round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                                                        + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                                                        + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                                                                   round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                                                        + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                                                        + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                                                         + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) dur,
                                                                     'CPU time',
                                                                     0,
                                                                     round ((s6t1.value - s6t0.value) / 1000000, 2) as time,     -- THIS IS DB CPU (sec)
                                                                     0,
                                                                     ((round ((s6t1.value - s6t0.value) / 1000000, 2)) / NULLIF(((s5t1.value - nvl(s5t0.value,0)) / 1000000),0))*100 as pctdbt,     -- THIS IS DB CPU (sec) / DB TIME (sec)..TO GET % OF DB CPU ON DB TIME FOR TOP 5 TIMED EVENTS SECTION
-                                                                    (round ((s6t1.value - s6t0.value) / 1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                                                                                + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                                                                                + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+                                                                    (round ((s6t1.value - s6t0.value) / 1000000, 2))/60 /  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                                                                                + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                                                                                + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                                                                                 + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) aas,  -- THIS IS DB CPU (min) / SnapDur (min) TO GET THE % DB CPU ON AAS
                                                                     'CPU'
-                                                                  from 
+                                                                  from
                                                                     dba_hist_snapshot s0,
                                                                     dba_hist_snapshot s1,
                                                                     dba_hist_sys_time_model s6t0,
                                                                     dba_hist_sys_time_model s6t1,
                                                                     dba_hist_sys_time_model s5t0,
                                                                     dba_hist_sys_time_model s5t1
-                                                                  WHERE 
+                                                                  WHERE
                                                                   s0.dbid                   = &_dbid              -- CHANGE THE DBID HERE!
                                                                   AND s1.dbid               = s0.dbid
                                                                   AND s6t0.dbid            = s0.dbid
@@ -336,8 +336,8 @@ from
                                                                   AND s5t0.stat_name       = 'DB time'
                                                                   AND s5t1.stat_name       = s5t0.stat_name
                                                           ) group by snap_id, inst) accounted_dbtime
-                                                            where dbtime.snap_id = accounted_dbtime.snap_id 
-                                                            and dbtime.inst = accounted_dbtime.inst 
+                                                            where dbtime.snap_id = accounted_dbtime.snap_id
+                                                            and dbtime.inst = accounted_dbtime.inst
                                         )
                     )
               )
@@ -362,7 +362,6 @@ AND to_date(tm,'MM/DD/YY HH24:MI:SS') > sysdate - :g_retention
 ORDER BY snap_id;
 spool off
 host sed -n -i '2,$ p' awr_topevents-tableau-&_instname-&_hostname..csv
-host gzip -v awr_topevents-tableau-&_instname-&_hostname..csv
-host tar -cvf awr_topevents-tableau-&_instname-&_hostname..tar awr_topevents-tableau-&_instname-&_hostname..csv.gz
-host rm awr_topevents-tableau-&_instname-&_hostname..csv.gz
-
+-- host gzip -v awr_topevents-tableau-&_instname-&_hostname..csv
+-- host tar -cvf awr_topevents-tableau-&_instname-&_hostname..tar awr_topevents-tableau-&_instname-&_hostname..csv.gz
+-- host rm awr_topevents-tableau-&_instname-&_hostname..csv.gz

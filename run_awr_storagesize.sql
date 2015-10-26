@@ -30,8 +30,8 @@ SELECT 'get_dbid', TO_CHAR(dbid) ecr_dbid FROM v$database;
 COL ecr_instance_number NEW_V ecr_instance_number;
 SELECT 'get_instance_number', TO_CHAR(instance_number) ecr_instance_number FROM v$instance;
 COL ecr_min_snap_id NEW_V ecr_min_snap_id;
-SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) ecr_min_snap_id 
-FROM dba_hist_snapshot WHERE dbid = &&ecr_dbid. 
+SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) ecr_min_snap_id
+FROM dba_hist_snapshot WHERE dbid = &&ecr_dbid.
 and to_date(to_char(END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS'),'MM/DD/YY HH24:MI:SS') > sysdate - 100;
 
 -- ttitle center 'AWR Storage Forecast Report' skip 2
@@ -64,11 +64,11 @@ SELECT /*+ MATERIALIZE NO_MERGE */
        us.snap_id,
        sn.end_interval_time
 )
-SELECT 
-  trim('&_instname') instname, 
-  trim('&_dbid') db_id, 
-  trim('&_hostname') hostname, 
-TO_CHAR(end_time, 'MM/DD/YY HH24:MI:SS') MONTH, 
+SELECT
+  trim('&_instname') instname,
+  trim('&_dbid') db_id,
+  trim('&_hostname') hostname,
+TO_CHAR(end_time, 'MM/DD/YY HH24:MI:SS') MONTH,
 ROUND((MAX(perm_tablespaces_bytes)+MAX(undo_tablespaces_bytes)+MAX(temp_tablespaces_bytes)))/1024/1024 USED_SIZE_MB,
 ROUND((MAX(perm_tablespaces_bytes)+MAX(undo_tablespaces_bytes)+MAX(temp_tablespaces_bytes)))/1024/1024 INC_USED_SIZE_MB
   FROM ts_per_snap_id
@@ -79,9 +79,9 @@ ROUND((MAX(perm_tablespaces_bytes)+MAX(undo_tablespaces_bytes)+MAX(temp_tablespa
 /
 spool off
 host sed -n -i '2,$ p' awr_storagesize_summary-tableau-&_instname-&_hostname..csv
-host gzip -v awr_storagesize_summary-tableau-&_instname-&_hostname..csv
-host tar -cvf awr_storagesize_summary-tableau-&_instname-&_hostname..tar awr_storagesize_summary-tableau-&_instname-&_hostname..csv.gz
-host rm awr_storagesize_summary-tableau-&_instname-&_hostname..csv.gz
+-- host gzip -v awr_storagesize_summary-tableau-&_instname-&_hostname..csv
+-- host tar -cvf awr_storagesize_summary-tableau-&_instname-&_hostname..tar awr_storagesize_summary-tableau-&_instname-&_hostname..csv.gz
+-- host rm awr_storagesize_summary-tableau-&_instname-&_hostname..csv.gz
 
 -- backup size
 spool awr_storagesize_rman-tableau-&_instname-&_hostname..csv
@@ -102,7 +102,6 @@ from V$RMAN_BACKUP_JOB_DETAILS
 order by start_time asc;
 spool off
 host sed -n -i '2,$ p' awr_storagesize_rman-tableau-&_instname-&_hostname..csv
-host gzip -v awr_storagesize_rman-tableau-&_instname-&_hostname..csv
-host tar -cvf awr_storagesize_rman-tableau-&_instname-&_hostname..tar awr_storagesize_rman-tableau-&_instname-&_hostname..csv.gz
-host rm awr_storagesize_rman-tableau-&_instname-&_hostname..csv.gz
-
+-- host gzip -v awr_storagesize_rman-tableau-&_instname-&_hostname..csv
+-- host tar -cvf awr_storagesize_rman-tableau-&_instname-&_hostname..tar awr_storagesize_rman-tableau-&_instname-&_hostname..csv.gz
+-- host rm awr_storagesize_rman-tableau-&_instname-&_hostname..csv.gz

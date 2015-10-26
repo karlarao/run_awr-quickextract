@@ -76,8 +76,8 @@ SET VERIFY OFF
 DECLARE
   v_default  NUMBER(3) := &p_default;
   v_max      NUMBER(3) := &p_max;
-BEGIN    
-  select 
+BEGIN
+  select
     ((TRUNC(SYSDATE) + RETENTION - TRUNC(SYSDATE)) * 86400)/60/60/24 AS RETENTION_DAYS
     into :g_retention
   from dba_hist_wr_control
@@ -87,17 +87,16 @@ BEGIN
     :g_retention := v_max;
   else
     :g_retention := v_default;
-  end if; 
+  end if;
 END;
 /
 
 spool awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
-SELECT , TO_CHAR(start_time,'MM/DD/YY HH24:MI:SS') start_time, TO_CHAR(end_time,'MM/DD/YY HH24:MI:SS') end_time, component, oper_type, oper_mode, initial_size, target_size, final_size, status 
+SELECT , TO_CHAR(start_time,'MM/DD/YY HH24:MI:SS') start_time, TO_CHAR(end_time,'MM/DD/YY HH24:MI:SS') end_time, component, oper_type, oper_mode, initial_size, target_size, final_size, status
     FROM dba_hist_memory_resize_ops
     ORDER BY 1, 2;
 spool off
 host sed -n -i '2,$ p' awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
-host gzip -v awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
-host tar -cvf awr_sgapga-tableau-sgapga-&_instname-&_hostname..tar awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv.gz
-host rm awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv.gz
-
+-- host gzip -v awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
+-- host tar -cvf awr_sgapga-tableau-sgapga-&_instname-&_hostname..tar awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv.gz
+-- host rm awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv.gz

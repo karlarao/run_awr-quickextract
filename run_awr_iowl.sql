@@ -3,9 +3,9 @@
 -- Karl Arao, Oracle ACE (bit.ly/karlarao), OCP-DBA, RHCE
 -- http://karlarao.wordpress.com
 --
--- NOTE: 
--- 
--- Changes: 
+-- NOTE:
+--
+-- Changes:
 --		20140909: perf improvement on the script using WITH
 --
 
@@ -18,8 +18,8 @@ select lower(host_name) name from v$instance;
 COL ecr_dbid NEW_V ecr_dbid;
 SELECT 'get_dbid', TO_CHAR(dbid) ecr_dbid FROM v$database;
 COL ecr_min_snap_id NEW_V ecr_min_snap_id;
-SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) ecr_min_snap_id 
-FROM dba_hist_snapshot WHERE dbid = &&ecr_dbid. 
+SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) ecr_min_snap_id
+FROM dba_hist_snapshot WHERE dbid = &&ecr_dbid.
 and to_date(to_char(END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS'),'MM/DD/YY HH24:MI:SS') > sysdate - 100;
 
 spool awr_iowl-tableau-exa-&_instname-&_hostname..csv
@@ -47,16 +47,16 @@ SELECT /*+ MATERIALIZE NO_MERGE */
   FROM dba_hist_sysstat
  WHERE snap_id >= &&ecr_min_snap_id.
    AND dbid = &&ecr_dbid.
-   AND stat_name IN 
+   AND stat_name IN
    ('redo writes','redo size','physical read total IO requests','physical read total multi block requests','physical read total bytes','physical write total IO requests','physical write total multi block requests','physical write total bytes','cell physical IO interconnect bytes','cell physical IO bytes saved during optimized file creation','cell physical IO bytes saved during optimized RMAN file restore','cell physical IO bytes eligible for predicate offload','cell physical IO bytes saved by storage index','cell physical IO interconnect bytes returned by smart scan','cell IO uncompressed bytes','cell flash cache read hits')
  GROUP BY
        instance_number,
        snap_id
 )
 SELECT /*+ MATERIALIZE NO_MERGE */
-       trim('&_instname') instname, 
-       trim('&&ecr_dbid.') db_id, 
-       trim('&_hostname') hostname, 
+       trim('&_instname') instname,
+       trim('&&ecr_dbid.') db_id,
+       trim('&_hostname') hostname,
        s0.snap_id id,
        TO_CHAR(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') tm,
        s0.instance_number inst,
@@ -71,11 +71,11 @@ SELECT /*+ MATERIALIZE NO_MERGE */
        ((h1.redo_size - h0.redo_size)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) redosizembs,
        ((h1.flashcache - h0.flashcache) / (h1.pread_io - h0.pread_io)) * 100 flashcache,
        ((h1.flashcache - h0.flashcache) / ((h1.pread_io - h0.pread_io)+(h1.pwrite_io - h0.pwrite_io))) * 100 flashcache2,
-       ((h1.cellpiob - h0.cellpiob)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) cellpiob, 
-       ((h1.cellpiobss - h0.cellpiobss)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) cellpiobss, 
+       ((h1.cellpiob - h0.cellpiob)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) cellpiob,
+       ((h1.cellpiobss - h0.cellpiobss)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) cellpiobss,
        ((h1.cellpiobpreoff - h0.cellpiobpreoff)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) cellpiobpreoff,
        ((h1.cellpiobsi - h0.cellpiobsi)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) cellpiobsi,
-       ((h1.celliouncomb - h0.celliouncomb)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) celliouncomb, 
+       ((h1.celliouncomb - h0.celliouncomb)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) celliouncomb,
        ((h1.cellpiobs - h0.cellpiobs)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) cellpiobs,
        ((h1.cellpiobsrman - h0.cellpiobsrman)/1024/1024) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) cellpiobsrman
   FROM sysstat_io h0,
@@ -97,7 +97,6 @@ SELECT /*+ MATERIALIZE NO_MERGE */
 /
 spool off
 host sed -n -i '2,$ p' awr_iowl-tableau-exa-&_instname-&_hostname..csv
-host gzip -v awr_iowl-tableau-exa-&_instname-&_hostname..csv
-host tar -cvf awr_iowl-tableau-exa-&_instname-&_hostname..tar awr_iowl-tableau-exa-&_instname-&_hostname..csv.gz
-host rm awr_iowl-tableau-exa-&_instname-&_hostname..csv.gz
-
+-- host gzip -v awr_iowl-tableau-exa-&_instname-&_hostname..csv
+-- host tar -cvf awr_iowl-tableau-exa-&_instname-&_hostname..tar awr_iowl-tableau-exa-&_instname-&_hostname..csv.gz
+-- host rm awr_iowl-tableau-exa-&_instname-&_hostname..csv.gz

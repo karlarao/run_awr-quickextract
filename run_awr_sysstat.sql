@@ -3,9 +3,9 @@
 -- Karl Arao, Oracle ACE (bit.ly/karlarao), OCP-DBA, RHCE
 -- http://karlarao.wordpress.com
 --
--- NOTE: 
--- 
--- Changes: 
+-- NOTE:
+--
+-- Changes:
 --		20140909: perf improvement on the script using WITH
 --
 
@@ -18,8 +18,8 @@ select lower(host_name) name from v$instance;
 COL ecr_dbid NEW_V ecr_dbid;
 SELECT 'get_dbid', TO_CHAR(dbid) ecr_dbid FROM v$database;
 COL ecr_min_snap_id NEW_V ecr_min_snap_id;
-SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) ecr_min_snap_id 
-FROM dba_hist_snapshot WHERE dbid = &&ecr_dbid. 
+SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) ecr_min_snap_id
+FROM dba_hist_snapshot WHERE dbid = &&ecr_dbid.
 and to_date(to_char(END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS'),'MM/DD/YY HH24:MI:SS') > sysdate - 100;
 
 spool awr_sysstat-tableau-&_instname-&_hostname..csv
@@ -36,16 +36,16 @@ SELECT /*+ MATERIALIZE NO_MERGE */
   FROM dba_hist_sysstat
  WHERE snap_id >= &&ecr_min_snap_id.
    AND dbid = &&ecr_dbid.
-   AND stat_name IN 
+   AND stat_name IN
    ('execute count','user commits','user rollbacks','logons current','logons cumulative')
  GROUP BY
        instance_number,
        snap_id
 )
 SELECT /*+ MATERIALIZE NO_MERGE */
-       trim('&_instname') instname, 
-       trim('&&ecr_dbid.') db_id, 
-       trim('&_hostname') hostname, 
+       trim('&_instname') instname,
+       trim('&&ecr_dbid.') db_id,
+       trim('&_hostname') hostname,
        s0.snap_id id,
        TO_CHAR(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') tm,
        s0.instance_number inst,
@@ -75,7 +75,6 @@ SELECT /*+ MATERIALIZE NO_MERGE */
 /
 spool off
 host sed -n -i '2,$ p' awr_sysstat-tableau-&_instname-&_hostname..csv
-host gzip -v awr_sysstat-tableau-&_instname-&_hostname..csv
-host tar -cvf awr_sysstat-tableau-&_instname-&_hostname..tar awr_sysstat-tableau-&_instname-&_hostname..csv.gz
-host rm awr_sysstat-tableau-&_instname-&_hostname..csv.gz
-
+-- host gzip -v awr_sysstat-tableau-&_instname-&_hostname..csv
+-- host tar -cvf awr_sysstat-tableau-&_instname-&_hostname..tar awr_sysstat-tableau-&_instname-&_hostname..csv.gz
+-- host rm awr_sysstat-tableau-&_instname-&_hostname..csv.gz

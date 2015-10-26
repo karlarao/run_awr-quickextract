@@ -3,8 +3,8 @@
 -- Karl Arao, Oracle ACE (bit.ly/karlarao), OCP-DBA, RHCE
 -- http://karlarao.wordpress.com
 --
--- 
--- Changes: 
+--
+-- Changes:
 
 set echo off verify off
 
@@ -78,8 +78,8 @@ SET VERIFY OFF
 DECLARE
   v_default  NUMBER(3) := &p_default;
   v_max      NUMBER(3) := &p_max;
-BEGIN    
-  select 
+BEGIN
+  select
     ((TRUNC(SYSDATE) + RETENTION - TRUNC(SYSDATE)) * 86400)/60/60/24 AS RETENTION_DAYS
     into :g_retention
   from dba_hist_wr_control
@@ -89,29 +89,29 @@ BEGIN
     :g_retention := v_max;
   else
     :g_retention := v_default;
-  end if; 
+  end if;
 END;
 /
 
 spool awr_services-tableau-&_instname-&_hostname..csv
-select * from 
+select * from
 (
 select  trim('&_instname') instname, trim('&_dbid') db_id, trim('&_hostname') hostname, snap_id,
-        TO_CHAR(tm,'MM/DD/YY HH24:MI:SS') tm, 
+        TO_CHAR(tm,'MM/DD/YY HH24:MI:SS') tm,
         inst,
         dur,
-        service_name, 
-        round(db_time / 1000000, 1) as dbt, 
+        service_name,
+        round(db_time / 1000000, 1) as dbt,
         round(db_cpu  / 1000000, 1) as dbc,
-        phy_reads, 
+        phy_reads,
         log_reads,
         aas
- from (select 
+ from (select
           s1.snap_id,
           s1.tm,
           s1.inst,
           s1.dur,
-          s1.service_name, 
+          s1.service_name,
           sum(decode(s1.stat_name, 'DB time', s1.diff, 0)) db_time,
           sum(decode(s1.stat_name, 'DB CPU',  s1.diff, 0)) db_cpu,
           sum(decode(s1.stat_name, 'physical reads', s1.diff, 0)) phy_reads,
@@ -121,18 +121,18 @@ select  trim('&_instname') instname, trim('&_dbid') db_id, trim('&_hostname') ho
      (select s0.snap_id snap_id,
              s0.END_INTERVAL_TIME tm,
              s0.instance_number inst,
-            round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                  + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                  + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+            round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                  + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                  + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                   + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) dur,
-             e.service_name     service_name, 
-             e.stat_name        stat_name, 
+             e.service_name     service_name,
+             e.stat_name        stat_name,
              e.value - b.value  diff
        from dba_hist_snapshot s0,
             dba_hist_snapshot s1,
             dba_hist_service_stat b,
             dba_hist_service_stat e
-       where 
+       where
          s0.dbid                  = &_dbid            -- CHANGE THE DBID HERE!
          and s1.dbid              = s0.dbid
          and b.dbid               = s0.dbid
@@ -146,14 +146,14 @@ select  trim('&_instname') instname, trim('&_dbid') db_id, trim('&_hostname') ho
          and e.snap_id            = s0.snap_id + 1
          and b.stat_id            = e.stat_id
          and b.service_name_hash  = e.service_name_hash) s1
-   group by 
+   group by
      s1.snap_id, s1.tm, s1.inst, s1.dur, s1.service_name
-   order by 
+   order by
      snap_id asc, aas desc, service_name)
 )
-WHERE 
+WHERE
 to_date(tm,'MM/DD/YY HH24:MI:SS') > sysdate - :g_retention
--- where 
+-- where
 -- AND TO_CHAR(tm,'D') >= 1     -- Day of week: 1=Sunday 7=Saturday
 -- AND TO_CHAR(tm,'D') <= 7
 -- AND TO_CHAR(tm,'HH24MI') >= 0900     -- Hour
@@ -166,7 +166,6 @@ to_date(tm,'MM/DD/YY HH24:MI:SS') > sysdate - :g_retention
 ;
 spool off
 host sed -n -i '2,$ p' awr_services-tableau-&_instname-&_hostname..csv
-host gzip -v awr_services-tableau-&_instname-&_hostname..csv
-host tar -cvf awr_services-tableau-&_instname-&_hostname..tar awr_services-tableau-&_instname-&_hostname..csv.gz
-host rm awr_services-tableau-&_instname-&_hostname..csv.gz
-
+-- host gzip -v awr_services-tableau-&_instname-&_hostname..csv
+-- host tar -cvf awr_services-tableau-&_instname-&_hostname..tar awr_services-tableau-&_instname-&_hostname..csv.gz
+-- host rm awr_services-tableau-&_instname-&_hostname..csv.gz

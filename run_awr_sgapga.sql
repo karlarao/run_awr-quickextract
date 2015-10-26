@@ -76,8 +76,8 @@ SET VERIFY OFF
 DECLARE
   v_default  NUMBER(3) := &p_default;
   v_max      NUMBER(3) := &p_max;
-BEGIN    
-  select 
+BEGIN
+  select
     ((TRUNC(SYSDATE) + RETENTION - TRUNC(SYSDATE)) * 86400)/60/60/24 AS RETENTION_DAYS
     into :g_retention
   from dba_hist_wr_control
@@ -87,31 +87,31 @@ BEGIN
     :g_retention := v_max;
   else
     :g_retention := v_default;
-  end if; 
+  end if;
 END;
 /
 
 spool awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
 SELECT * FROM
-( 
-  SELECT trim('&_instname') instname, 
-         trim('&_dbid') db_id, 
-         trim('&_hostname') hostname, 
+(
+  SELECT trim('&_instname') instname,
+         trim('&_dbid') db_id,
+         trim('&_hostname') hostname,
           s0.snap_id id,
          TO_CHAR(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') tm,
          s0.instance_number inst,
-  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440 
-                                  + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60 
-                                  + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) 
+  round(EXTRACT(DAY FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 1440
+                                  + EXTRACT(HOUR FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) * 60
+                                  + EXTRACT(MINUTE FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME)
                                   + EXTRACT(SECOND FROM s1.END_INTERVAL_TIME - s0.END_INTERVAL_TIME) / 60, 2) dur,
   round(s4t1.value/1024/1024/1024,2) AS memgb,
   round(s37t1.value/1024/1024/1024,2) AS sgagb,
   round(s36t1.value/1024/1024/1024,2) AS pgagb
 FROM dba_hist_snapshot s0,
   dba_hist_snapshot s1,
-  dba_hist_osstat s4t1,         -- osstat just get the end value 
+  dba_hist_osstat s4t1,         -- osstat just get the end value
   (select snap_id, dbid, instance_number, sum(value) value from dba_hist_sga group by snap_id, dbid, instance_number) s37t1, -- total SGA allocated, just get the end value
-  dba_hist_pgastat s36t1   -- total PGA allocated, just get the end value   
+  dba_hist_pgastat s36t1   -- total PGA allocated, just get the end value
 WHERE s0.dbid            = &_dbid    -- CHANGE THE DBID HERE!
 AND s1.dbid              = s0.dbid
 AND s4t1.dbid            = s0.dbid
@@ -129,7 +129,7 @@ AND s37t1.snap_id        = s0.snap_id + 1
 AND s4t1.stat_name       = 'PHYSICAL_MEMORY_BYTES'
 AND s36t1.name           = 'total PGA allocated'
 )
-WHERE 
+WHERE
 to_date(tm,'MM/DD/YY HH24:MI:SS') > sysdate - :g_retention
 -- id  in (select snap_id from (select * from r2toolkit.r2_regression_data union all select * from r2toolkit.r2_outlier_data))
 -- id in (336)
@@ -145,7 +145,6 @@ to_date(tm,'MM/DD/YY HH24:MI:SS') > sysdate - :g_retention
 ORDER BY id ASC;
 spool off
 host sed -n -i '2,$ p' awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
-host gzip -v awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
-host tar -cvf awr_sgapga-tableau-sgapga-&_instname-&_hostname..tar awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv.gz
-host rm awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv.gz
-
+-- host gzip -v awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
+-- host tar -cvf awr_sgapga-tableau-sgapga-&_instname-&_hostname..tar awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv.gz
+-- host rm awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv.gz
