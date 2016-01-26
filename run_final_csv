@@ -32,4 +32,6 @@ done
 find . -name '*awr_topsegments*.csv' | while read file; do
 cat "$file" >> awr_topsegments.txt
 done
-
+find . -name '*awr_iostat_filetype*.csv' | while read file; do
+cat "$file" >> awr_iostat_filetype.txt
+done
