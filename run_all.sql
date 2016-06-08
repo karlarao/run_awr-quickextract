@@ -7,11 +7,13 @@
 @run_awr_sysstat.sql
 @run_awr_sgapga.sql
 @run_awr_cpuwl.sql
+@run_awr_cpuwl_ash.sql
 @run_awr_iowl.sql
 @run_awr_iostat_filetype.sql
 @run_awr_storagesize.sql
 @run_awr_services.sql
 @run_awr_topsql.sql
+--@run_awr_topsegments.sql
 
 exit
 
