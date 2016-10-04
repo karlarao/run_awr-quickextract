@@ -17,7 +17,7 @@ set arraysize 5000
 set verify off
 set sqlformat csv
 
-spool awr_cpuwl-tableau.csv
+spool awr_cpuwl-tableau..csv
 
 WITH
 cpuwl AS (
@@ -40,8 +40,9 @@ SELECT /*+ MATERIALIZE NO_MERGE */
        dbid
 )
 SELECT /*+ MATERIALIZE NO_MERGE */
-       wh.target_name target_name, 
-       wh.new_dbid dbid,
+       wh.target_name, 
+       wh.new_dbid,
+       s0.dbid,
        s0.snap_id id,
        TO_CHAR(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') tm,
        s0.instance_number inst,
