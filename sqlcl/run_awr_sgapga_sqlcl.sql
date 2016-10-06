@@ -95,7 +95,7 @@ BEGIN
 END;
 /
 
-spool awr_sgapga-tableau-sgapga-&_instname-&_hostname..csv
+spool awr_sgapga-tableau_sqlcl-sgapga-&_instname-&_hostname..csv
 SELECT * FROM
 (
   SELECT trim('&_instname') instname,

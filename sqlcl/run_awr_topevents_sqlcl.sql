@@ -73,7 +73,7 @@ BEGIN
 END;
 /
 
-spool awr_topevents-tableau-&_instname-&_hostname..csv
+spool awr_topevents-tableau_sqlcl-&_instname-&_hostname..csv
 select trim('&_instname') instname, trim('&_dbid') db_id, trim('&_hostname') hostname, snap_id, tm, inst, dur, event, event_rank, waits, time, avgwt, pctdbt, aas, wait_class
 from
       (select snap_id, TO_CHAR(tm,'MM/DD/YY HH24:MI:SS') tm, inst, dur, event, waits, time, avgwt, pctdbt, aas, wait_class,

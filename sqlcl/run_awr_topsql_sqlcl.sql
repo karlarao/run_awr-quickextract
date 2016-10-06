@@ -91,7 +91,7 @@ BEGIN
 END;
 /
 
-spool awr_topsqlx-tableau-exa-&_instname-&_hostname..csv
+spool awr_topsqlx-tableau-exa_sqlcl-&_instname-&_hostname..csv
      select *
        from (
              select

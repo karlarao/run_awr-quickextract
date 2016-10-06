@@ -1,12 +1,8 @@
--- awr_sysstat.sql
--- AWR Load Profile Report
+-- awr_cpuwl.sql
+-- AWR CPU Workload Report
 -- Karl Arao, Oracle ACE (bit.ly/karlarao), OCP-DBA, RHCE
 -- http://karlarao.wordpress.com
 --
--- NOTE:
---
--- Changes:
---		20140909: perf improvement on the script using WITH
 --
 
 set feedback off 
@@ -32,22 +28,23 @@ SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) ecr_min_snap_id
 FROM dba_hist_snapshot WHERE dbid = &&ecr_dbid.
 and to_date(to_char(END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS'),'MM/DD/YY HH24:MI:SS') > sysdate - 100;
 
-spool awr_sysstat-tableau-&_instname-&_hostname..csv
+spool awr_cpuwl-tableau_sqlcl-&_instname-&_hostname..csv
 WITH
-sysstat_io AS (
+cpuwl AS (
 SELECT /*+ MATERIALIZE NO_MERGE */
        instance_number,
        snap_id,
-       SUM(CASE WHEN stat_name = 'execute count' THEN value ELSE 0 END) exs,
-       SUM(CASE WHEN stat_name = 'user commits' THEN value ELSE 0 END) ucoms,
-       SUM(CASE WHEN stat_name = 'user rollbacks' THEN value ELSE 0 END) urs,
-       SUM(CASE WHEN stat_name = 'logons current' THEN value ELSE 0 END) logons,
-       SUM(CASE WHEN stat_name = 'logons cumulative' THEN value ELSE 0 END) logonscum
-  FROM dba_hist_sysstat
+       SUM(CASE WHEN stat_name = 'BUSY_TIME' THEN value ELSE 0 END) busy_time,
+       SUM(CASE WHEN stat_name = 'SYS_TIME' THEN value ELSE 0 END) sys_time,
+       SUM(CASE WHEN stat_name = 'IOWAIT_TIME' THEN value ELSE 0 END) io_wait,
+       SUM(CASE WHEN stat_name = 'RSRC_MGR_CPU_WAIT_TIME' THEN value ELSE 0 END) rsrcmgr,
+       SUM(CASE WHEN stat_name = 'LOAD' THEN value ELSE 0 END) loadavg,
+       SUM(CASE WHEN stat_name = 'NUM_CPUS' THEN value ELSE 0 END) cpu
+  FROM dba_hist_osstat
  WHERE snap_id >= &&ecr_min_snap_id.
    AND dbid = &&ecr_dbid.
    AND stat_name IN
-   ('execute count','user commits','user rollbacks','logons current','logons cumulative')
+   ('BUSY_TIME','SYS_TIME','IOWAIT_TIME','RSRC_MGR_CPU_WAIT_TIME','LOAD','NUM_CPUS')
  GROUP BY
        instance_number,
        snap_id
@@ -60,15 +57,16 @@ SELECT /*+ MATERIALIZE NO_MERGE */
        TO_CHAR(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') tm,
        s0.instance_number inst,
        round(((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400)/60,2) dur,
-       (h1.exs - h0.exs) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) exs,
-       (h1.ucoms - h0.ucoms) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) ucoms,
-       (h1.urs - h0.urs) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) urs,
-       ((h1.ucoms - h0.ucoms) + (h1.urs - h0.urs)) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) trxs,
-       h0.logons / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) logons,
-       (h1.logonscum - h0.logonscum) / ((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400) logonscum
-  FROM sysstat_io h0,
+       h1.cpu AS cpu,
+       round(h1.loadavg,2) AS loadavg,
+       ((((h1.busy_time - h0.busy_time)+(h1.rsrcmgr - h0.rsrcmgr))/100) / (((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400)*h1.cpu) )*h1.cpu as aas_cpu,
+       (((h1.rsrcmgr - h0.rsrcmgr)/100) / (((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400)*h1.cpu) )*100 as rsrcmgrpct,
+       (((h1.busy_time - h0.busy_time)/100) / (((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400)*h1.cpu) )*100 as oscpupct,
+       (((h1.sys_time - h0.sys_time)/100) / (((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400)*h1.cpu) )*100 as oscpusys,
+       (((h1.io_wait - h0.io_wait)/100) / (((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400)*h1.cpu) )*100 as oscpuio
+  FROM cpuwl h0,
        dba_hist_snapshot s0,
-       sysstat_io h1,
+       cpuwl h1,
        dba_hist_snapshot s1
  WHERE s0.snap_id >= &&ecr_min_snap_id.
    AND s0.dbid = &&ecr_dbid.

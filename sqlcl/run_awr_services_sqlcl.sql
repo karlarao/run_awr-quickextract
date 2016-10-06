@@ -94,7 +94,7 @@ BEGIN
 END;
 /
 
-spool awr_services-tableau-&_instname-&_hostname..csv
+spool awr_services-tableau_sqlcl-&_instname-&_hostname..csv
 select * from
 (
 select  trim('&_instname') instname, trim('&_dbid') db_id, trim('&_hostname') hostname, snap_id,

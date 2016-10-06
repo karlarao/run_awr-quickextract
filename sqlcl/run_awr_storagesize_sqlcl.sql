@@ -43,7 +43,7 @@ and to_date(to_char(END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS'),'MM/DD/YY HH24:MI:S
 -- ttitle center 'AWR Storage Forecast Report' skip 2
 
 -- storage size
-spool awr_storagesize_summary-tableau-&_instname-&_hostname..csv
+spool awr_storagesize_summary-tableau_sqlcl-&_instname-&_hostname..csv
 WITH
 ts_per_snap_id AS (
 SELECT /*+ MATERIALIZE NO_MERGE */
@@ -84,7 +84,7 @@ ROUND((MAX(perm_tablespaces_bytes)+MAX(undo_tablespaces_bytes)+MAX(temp_tablespa
 spool off
 
 -- backup size
-spool awr_storagesize_rman-tableau-&_instname-&_hostname..csv
+spool awr_storagesize_rman-tableau_sqlcl-&_instname-&_hostname..csv
 select
 trim('&_instname') instname,
 trim('&_dbid') db_id,

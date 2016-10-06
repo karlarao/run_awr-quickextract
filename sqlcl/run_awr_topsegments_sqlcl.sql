@@ -33,7 +33,7 @@ select instance_number instancenumber from v$instance;
 
 -- ttitle center 'AWR Top Segments' skip 2
 
-spool awr_topsegments-tableau-&_instname-&_hostname..csv
+spool awr_topsegments-tableau_sqlcl-&_instname-&_hostname..csv
 SELECT
   trim('&_instname') instname,
   trim('&_dbid') db_id,
