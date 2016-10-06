@@ -16,7 +16,7 @@ set arraysize 5000
 set verify off
 set sqlformat csv
 
-spool awr_iostat_filetype-tableau.csv
+spool awr_iostat_filetype_wh.csv
 select * from 
 (
 select

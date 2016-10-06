@@ -16,7 +16,7 @@ set arraysize 5000
 set verify off
 set sqlformat csv
 
-spool awr_storagesize-tableau.csv
+spool awr_storagesize_wh.csv
 WITH tbs_size AS (
       SELECT 
              s0.dbid dbid,

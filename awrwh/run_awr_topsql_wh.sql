@@ -21,7 +21,7 @@ set arraysize 5000
 set verify off
 set sqlformat csv
 
-spool awr_topsqlx-tableau-exa.csv
+spool awr_topsqlx_wh.csv
      select *
        from (
              select

@@ -16,7 +16,7 @@ set arraysize 5000
 set verify off
 set sqlformat csv
 
-spool awr_sgapga-tableau.csv
+spool awr_sgapga_wh.csv
 WITH sga_mem AS (
   select snap_id, dbid, instance_number, sum(value) value from dba_hist_sga group by snap_id, dbid, instance_number
 )

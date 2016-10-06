@@ -17,7 +17,7 @@ set arraysize 5000
 set verify off
 set sqlformat csv
 
-spool awr_cpuwl-tableau.csv
+spool awr_cpuwl_wh.csv
 
 WITH
 cpuwl AS (

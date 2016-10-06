@@ -22,7 +22,7 @@ set arraysize 5000
 set verify off
 set sqlformat csv
 
-spool awr_topevents-tableau.csv
+spool awr_topevents_wh.csv
 select 
   target_name,
   dbid,
