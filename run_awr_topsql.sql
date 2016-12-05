@@ -32,7 +32,7 @@ select instance_number instancenumber from v$instance;
 
 -- ttitle center 'AWR Top SQL Report' skip 2
 set pagesize 50000
-set linesize 700
+set linesize 1500
 
 col snap_id             format 99999            heading -- "Snap|ID"
 col tm                  format a15              heading -- "Snap|Start|Time"
