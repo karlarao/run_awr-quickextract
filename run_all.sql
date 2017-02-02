@@ -11,6 +11,7 @@
 @run_awr_iowl.sql
 @run_awr_iostat_filetype.sql
 @run_awr_storagesize.sql
+@run_awr_netclient.sql
 @run_awr_services.sql
 @run_awr_topsql.sql
 @host_cpu.sql
