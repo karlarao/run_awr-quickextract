@@ -56,7 +56,7 @@ DEF;
 SELECT 'get_current_time', TO_CHAR(SYSDATE, '&&ecr_date_format.') current_time FROM DUAL
 /
 
-SPO esp_requirements_awr_&&esp_host_name_short._&&esp_collection_yyyymmdd..csv APP;
+SPO run_awr_cpuwl_ash_&&esp_host_name_short._&&esp_collection_yyyymmdd..csv APP;
 
 -- header
 SELECT 'collection_host,collection_key,category,data_element,source,instance_number,inst_id,value' FROM DUAL
