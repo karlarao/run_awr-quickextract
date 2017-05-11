@@ -8,8 +8,11 @@ done
 find . -name '*awr_sgapga*.csv' | while read file; do
 cat "$file" >> awr_sgapga.txt
 done
-find . -name '*awr_cpuwl*.csv' | while read file; do
-cat "$file" >> awr_cpuwl.txt
+find . -name '*awr_cpuwl_ash*.csv' | while read file; do
+cat "$file" >> awr_cpuwl_ash.txt
+done
+find . -name '*awr_cpuwl_tableau*.csv' | while read file; do
+cat "$file" >> awr_cpuwl_tableau.txt
 done
 find . -name '*awr_iowl*.csv' | while read file; do
 cat "$file" >> awr_iowl.txt
@@ -35,3 +38,7 @@ done
 find . -name '*awr_iostat_filetype*.csv' | while read file; do
 cat "$file" >> awr_iostat_filetype.txt
 done
+find . -name '*awr_netclient*.csv' | while read file; do
+cat "$file" >> awr_netclient.txt
+done
+

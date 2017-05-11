@@ -2,7 +2,7 @@
 -- this section is from https://github.com/carlos-sierra/esp_collect
 
 
-DEF MAX_DAYS = '365';
+DEF MAX_DAYS = '100';
 SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
 
 -- get host name (up to 30, stop before first '.', no special characters)
