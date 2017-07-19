@@ -143,6 +143,6 @@ SELECT '&&ecr_collection_host.', '&&ecr_collection_key', 'nw_perf_ts', 'nw_dl_by
 
 spool off
 host sed -n -i '2,$ p' awr_netclient-tableau-&_instname-&_hostname..csv
-host gzip -v awr_netclient-tableau-&_instname-&_hostname..csv
-host tar -cvf awr_netclient-tableau-&_instname-&_hostname..tar awr_netclient-tableau-&_instname-&_hostname..csv.gz
-host rm awr_netclient-tableau-&_instname-&_hostname..csv.gz
+-- host gzip -v awr_netclient-tableau-&_instname-&_hostname..csv
+-- host tar -cvf awr_netclient-tableau-&_instname-&_hostname..tar awr_netclient-tableau-&_instname-&_hostname..csv.gz
+-- host rm awr_netclient-tableau-&_instname-&_hostname..csv.gz
