@@ -17,7 +17,9 @@
 @host_cpu.sql
 @gvash_to_csv_hist.sql
 @run_awr_topsegments.sql
+@run_awr_planx.sql
+@run_esp_master.sql
+@run_awr_miner.sql
+
 
 exit
-
-
