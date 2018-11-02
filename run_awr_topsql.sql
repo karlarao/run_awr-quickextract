@@ -41,6 +41,7 @@ col dur                 format 990.00           heading -- "Snap|Dur|(m)"
 col sql_id              format a15              heading -- "SQL|ID"
 col phv                 format 99999999999      heading -- "Plan|Hash|Value"
 col module              format a50
+col action              format a50
 col elap                format 999990.00        heading -- "Ela|Time|(s)"
 col elapexec            format 999990.00        heading -- "Ela|Time|per|exec|(s)"
 col cput                format 999990.00        heading -- "CPU|Time|(s)"
@@ -125,9 +126,10 @@ spool awr_topsqlx-tableau-exa-&_instname-&_hostname..csv
                   sqt.fms fms,
                   sqt.parse_schema parse_schema,
                   substr(to_clob(decode(sqt.module, null, null, sqt.module)),1,50) module,
+                  substr(to_clob(decode(sqt.action, null, null, sqt.action)),1,50) action,
                   st.sql_text sql_text     -- PUT/REMOVE COMMENT TO HIDE/SHOW THE SQL_TEXT
              from        (
-                          select snap_id, tm, inst, dur, sql_id, phv, fms, parse_schema, module, elap, elapexec, cput, iowait, appwait, concurwait, clwait, bget, dskr, dpath, rowp, exec, prsc, pxexec, icbytes, offloadbytes, offloadreturnbytes, flashcachereads, uncompbytes, aas, time_rank
+                          select snap_id, tm, inst, dur, sql_id, phv, fms, parse_schema, module, action, elap, elapexec, cput, iowait, appwait, concurwait, clwait, bget, dskr, dpath, rowp, exec, prsc, pxexec, icbytes, offloadbytes, offloadreturnbytes, flashcachereads, uncompbytes, aas, time_rank
                           from
                                              (
                                                select
@@ -143,6 +145,7 @@ spool awr_topsqlx-tableau-exa-&_instname-&_hostname..csv
                                                       e.force_matching_signature fms,
                                                       e.parsing_schema_name parse_schema,
                                                       max(e.module) module,
+                                                      max(e.action) action,
                                                       sum(e.elapsed_time_delta)/1000000 elap,
                                                       decode((sum(e.executions_delta)), 0, to_number(null), ((sum(e.elapsed_time_delta)) / (sum(e.executions_delta)) / 1000000)) elapexec,
                                                       sum(e.cpu_time_delta)/1000000     cput,
