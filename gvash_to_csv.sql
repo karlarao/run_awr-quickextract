@@ -151,7 +151,7 @@ DELTA_INTERCONNECT_IO_BYTES ||','|| PGA_ALLOCATED ||','|| TEMP_SPACE_ALLOCATED
 From 
 (select trim('&_instname') INSTNAME, TO_CHAR(SAMPLE_TIME,'MM/DD/YY HH24:MI:SS') TM, TO_CHAR(SQL_EXEC_START, 'MM/DD/YY HH24:MI:SS') TMS, a.*
 from gv$active_session_history a)
-Where SAMPLE_TIME > sysdate - 10/1440
+Where SAMPLE_TIME > sysdate - 3
 Order by SAMPLE_TIME, session_id asc;
 spool off;
 
