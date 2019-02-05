@@ -1,7 +1,5 @@
 -- How to dump raw Active Session History Data into a spreadsheet (Doc ID 1630717.1)
--- gvash_to_csv_hist.sql : modified by Karl Arao 
--- DataRange1: SYSDATE-2 
--- DataRange2: SYSDATE
+-- gvash_to_csv.sql : modified by Karl Arao 
 
 set feedback off pages 0 term off head on und off trimspool on 
 set arraysize 5000
@@ -119,7 +117,7 @@ set heading off
 set feedback off
 set echo off
 
-! echo "INSTNAME, INSTANCE_NUMBER , DBID, SNAP_ID, SAMPLE_ID , TM, TMS, SAMPLE_TIME , SESSION_ID , SESSION_SERIAL# , SESSION_TYPE , FLAGS , USER_ID , SQL_ID ,"-
+! echo "INSTNAME, INST_ID , SAMPLE_ID , TM, TMS, SAMPLE_TIME , SESSION_ID , SESSION_SERIAL# , SESSION_TYPE , FLAGS , USER_ID , SQL_ID ,"-
 "IS_SQLID_CURRENT , SQL_CHILD_NUMBER , SQL_OPCODE , SQL_OPNAME , FORCE_MATCHING_SIGNATURE , TOP_LEVEL_SQL_ID , TOP_LEVEL_SQL_OPCODE , "-
 "SQL_PLAN_HASH_VALUE , SQL_PLAN_LINE_ID , SQL_PLAN_OPERATION , SQL_PLAN_OPTIONS , SQL_EXEC_ID , SQL_EXEC_START , PLSQL_ENTRY_OBJECT_ID,"-
 "PLSQL_ENTRY_SUBPROGRAM_ID , PLSQL_OBJECT_ID , PLSQL_SUBPROGRAM_ID , QC_INSTANCE_ID , QC_SESSION_ID , QC_SESSION_SERIAL# , PX_FLAGS , EVENT ,"-
@@ -130,11 +128,11 @@ set echo off
 " IN_BIND , IN_CURSOR_CLOSE , IN_SEQUENCE_LOAD , CAPTURE_OVERHEAD , REPLAY_OVERHEAD , IS_CAPTURED , IS_REPLAYED , SERVICE_HASH , PROGRAM , MODULE ,"-
 " ACTION , CLIENT_ID , MACHINE , PORT , ECID , DBREPLAY_FILE_ID , DBREPLAY_CALL_COUNTER , TM_DELTA_TIME , TM_DELTA_CPU_TIME , TM_DELTA_DB_TIME , "-
 "DELTA_TIME , DELTA_READ_IO_REQUESTS , DELTA_WRITE_IO_REQUESTS , DELTA_READ_IO_BYTES , DELTA_WRITE_IO_BYTES , DELTA_INTERCONNECT_IO_BYTES , "-
-"PGA_ALLOCATED , TEMP_SPACE_ALLOCATED " > myash-hist-&_instname..csv
+"PGA_ALLOCATED , TEMP_SPACE_ALLOCATED " > myash-&_instname..csv
 
-spool myash-hist-&_instname..csv append
+spool myash-&_instname..csv append
 
-select INSTNAME ||','|| INSTANCE_NUMBER ||','|| DBID ||','|| SNAP_ID ||','|| SAMPLE_ID ||','|| TM ||','|| TMS ||','|| SAMPLE_TIME ||','|| SESSION_ID ||','|| SESSION_SERIAL# ||','|| -
+select INSTNAME ||','|| INST_ID ||','|| SAMPLE_ID ||','|| TM ||','|| TMS ||','|| SAMPLE_TIME ||','|| SESSION_ID ||','|| SESSION_SERIAL# ||','|| -
 SESSION_TYPE ||','|| FLAGS ||','|| USER_ID ||','|| SQL_ID ||','|| IS_SQLID_CURRENT ||','|| SQL_CHILD_NUMBER ||','|| SQL_OPCODE ||','|| SQL_OPNAME -
 ||','|| FORCE_MATCHING_SIGNATURE ||','|| TOP_LEVEL_SQL_ID ||','|| TOP_LEVEL_SQL_OPCODE ||','|| SQL_PLAN_HASH_VALUE ||','|| SQL_PLAN_LINE_ID -
 ||','|| SQL_PLAN_OPERATION ||','|| SQL_PLAN_OPTIONS ||','|| SQL_EXEC_ID ||','|| SQL_EXEC_START ||','|| PLSQL_ENTRY_OBJECT_ID ||','|| -
@@ -152,7 +150,8 @@ DELTA_READ_IO_REQUESTS ||','|| DELTA_WRITE_IO_REQUESTS ||','|| DELTA_READ_IO_BYT
 DELTA_INTERCONNECT_IO_BYTES ||','|| PGA_ALLOCATED ||','|| TEMP_SPACE_ALLOCATED 
 From 
 (select trim('&_instname') INSTNAME, TO_CHAR(SAMPLE_TIME,'MM/DD/YY HH24:MI:SS') TM, TO_CHAR(SQL_EXEC_START, 'MM/DD/YY HH24:MI:SS') TMS, a.*
-from DBA_HIST_ACTIVE_SESS_HISTORY a)
-where sample_time between SYSDATE-7 and SYSDATE
+from gv$active_session_history a)
+Where SAMPLE_TIME > sysdate - 10/1440
 Order by SAMPLE_TIME, session_id asc;
 spool off;
+
