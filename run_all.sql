@@ -16,6 +16,7 @@
 @run_awr_topsql.sql
 @host_cpu.sql
 @gvash_to_csv_hist.sql
+@gvash_to_csv.sql
 @run_awr_topsegments.sql
 @run_awr_planx.sql
 @run_esp_master.sql
