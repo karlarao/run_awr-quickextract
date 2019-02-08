@@ -26,11 +26,17 @@ DENSE_RANK() OVER
       (ORDER BY sum(BUFFER_GETS_DELTA) DESC ) log_reads_rank,
 DENSE_RANK() OVER
       (ORDER BY sum(disk_reads_delta) DESC ) phys_reads_rank
- FROM dba_hist_sqlstat s,dba_hist_sqltext t
+ FROM dba_hist_sqlstat s,(select sql_id, from
+                            (select
+                            sql_id, dbid,  
+                            REPLACE(REPLACE( dbms_lob.substr(sql_text,50,1), CHR(10) ), CHR(13) ) sqldetail 
+                            from dba_hist_sqltext a) a
+                            where a.sqldetail not like '%SQL Analyze%'
+                            and a.sqldetail not like '%sys.ora%') t
  WHERE s.dbid = &&ecr_dbid.  
-   AND s.dbid = t.dbid
+  AND s.dbid = t.dbid
   AND s.sql_id = t.sql_id
-  AND PARSING_SCHEMA_NAME NOT IN ('SYS','DBSNMP','SYSMAN')
+  AND s.PARSING_SCHEMA_NAME NOT IN ('SYS','DBSNMP','SYSMAN')
   AND s.force_matching_signature != 0
   GROUP BY s.sql_id,s.force_matching_signature)
 WHERE elap_rank <= &SQL_TOP_N
@@ -52,7 +58,13 @@ DENSE_RANK() OVER
       (ORDER BY sum(BUFFER_GETS_DELTA) DESC ) log_reads_rank,
 DENSE_RANK() OVER
       (ORDER BY sum(disk_reads_delta) DESC ) phys_reads_rank
- FROM dba_hist_sqlstat s,dba_hist_sqltext t
+ FROM dba_hist_sqlstat s,(select sql_id, from
+                            (select
+                            sql_id, dbid,  
+                            REPLACE(REPLACE( dbms_lob.substr(sql_text,50,1), CHR(10) ), CHR(13) ) sqldetail 
+                            from dba_hist_sqltext a) a
+                            where a.sqldetail not like '%SQL Analyze%'
+                            and a.sqldetail not like '%sys.ora%') t
  WHERE s.dbid = &&ecr_dbid.  
    AND s.dbid = t.dbid
   AND s.sql_id = t.sql_id
