@@ -156,7 +156,7 @@ DELTA_INTERCONNECT_IO_BYTES ||','|| PGA_ALLOCATED ||','|| TEMP_SPACE_ALLOCATED
 From 
 (select trim('&_instname') INSTNAME, TO_CHAR(SAMPLE_TIME,'MM/DD/YY HH24:MI:SS') TM, TO_CHAR(SQL_EXEC_START, 'MM/DD/YY HH24:MI:SS') TMS, a.*
 from DBA_HIST_ACTIVE_SESS_HISTORY a)
--- where sample_time between SYSDATE-8 and SYSDATE
-where sample_time between to_date('&_start_time', 'MM/DD/YY HH24:MI') and to_date('&_end_time', 'MM/DD/YY HH24:MI')
+where sample_time between SYSDATE-10 and SYSDATE
+-- where sample_time between to_date('&_start_time', 'MM/DD/YY HH24:MI') and to_date('&_end_time', 'MM/DD/YY HH24:MI')
 Order by SAMPLE_TIME, session_id asc;
 spool off;
