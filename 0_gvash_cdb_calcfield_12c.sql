@@ -1,5 +1,7 @@
 -- CDB/PDB calculated field for tableau 
 
+alter session set container=cdb$root;
+
 set feedback off pages 0 term off head on und off trimspool on 
 set arraysize 5000
 set termout off
