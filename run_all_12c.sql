@@ -15,6 +15,7 @@
 @run_awr_services.sql
 @run_awr_topsql.sql
 @host_cpu.sql
+@0_gvash_cdb_calcfield_12c.sql
 @0_gvash_to_csv_hist_12c.sql
 @0_gvash_to_csv_12c.sql
 @run_awr_topsegments.sql
