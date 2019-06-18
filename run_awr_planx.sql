@@ -39,7 +39,7 @@ DENSE_RANK() OVER
  WHERE s.dbid = &&ecr_dbid.  
   AND s.dbid = t.dbid
   AND s.sql_id = t.sql_id
-  AND s.PARSING_SCHEMA_NAME NOT IN ('SYS','SYSTEM','DBSNMP','SYSMAN','AUDSYS')
+  AND s.PARSING_SCHEMA_NAME NOT IN ('SYS','SYSTEM','DBSNMP','SYSMAN','AUDSYS','MDSYS','ORDSYS','XDB','APEX_PUBLIC_USER','ORACLE_OCM','APEX_050100','GSMADMIN_INTERNAL','ORDS_METADATA')
   AND s.force_matching_signature != 0
   GROUP BY s.sql_id,s.force_matching_signature --, t.sqldetail, s.PARSING_SCHEMA_NAME
   )
@@ -75,7 +75,7 @@ DENSE_RANK() OVER
  WHERE s.dbid = &&ecr_dbid.  
    AND s.dbid = t.dbid
   AND s.sql_id = t.sql_id
-  AND PARSING_SCHEMA_NAME NOT IN ('SYS','SYSTEM','DBSNMP','SYSMAN','AUDSYS')
+  AND s.PARSING_SCHEMA_NAME NOT IN ('SYS','SYSTEM','DBSNMP','SYSMAN','AUDSYS','MDSYS','ORDSYS','XDB','APEX_PUBLIC_USER','ORACLE_OCM','APEX_050100','GSMADMIN_INTERNAL','ORDS_METADATA')
   AND force_matching_signature = 0
   GROUP BY s.sql_id,s.force_matching_signature --, t.sqldetail, s.PARSING_SCHEMA_NAME
   )
