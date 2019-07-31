@@ -12,7 +12,7 @@ find . -name '*awr_cpuwl_ash*.csv' | while read file; do
 cat "$file" >> awr_cpuwl_ash.txt
 done
 find . -name '*awr_cpuwl-tableau*.csv' | while read file; do
-cat "$file" >> awr_cpuwl_tableau.txt
+cat "$file" >> awr_cpuwl.txt
 done
 find . -name '*awr_iowl*.csv' | while read file; do
 cat "$file" >> awr_iowl.txt
@@ -41,4 +41,6 @@ done
 find . -name '*awr_netclient*.csv' | while read file; do
 cat "$file" >> awr_netclient.txt
 done
-
+find . -name 'myash-hist-*.csv' | while read file; do
+cat "$file" >> myash-hist.txt
+done
