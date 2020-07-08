@@ -8,18 +8,23 @@ set termout off
 set echo off verify off
 
 COLUMN name NEW_VALUE _instname NOPRINT
-select lower(instance_name) name from v$instance;
+select lower(SUBSTR(b.instance_name, 0, LENGTH(b.instance_name) - 1)) name from v$instance b;
 
-spool myash-hist-cdb-calcfield-&_instname..csv
+spool myash-calcfield-hist-cdb-&_instname..calc
 set lines 150
 select   
-'ELSEIF ([Con Id])=1 and contains(lower(trim([Instname])),'''||lower(b.instance_name)||''')=true THEN str(''1'') + str(''_'') + str(''CDBROOT'') + str(''_'') + str('''||c.dbid||''')' as text
+'ELSEIF ([Con Id])=1 and contains(lower(trim([Instname])),'''||lower(SUBSTR(b.instance_name, 0, LENGTH(b.instance_name) - 1))||''')=true THEN str(''1'') + str(''_'') + str(''CDBROOT'') + str(''_'') + str('''||c.dbid||''')' as text
 from 
 v$pdbs a, v$instance b, v$database c
 where a.con_id = 2
 union all
 select   
-'ELSEIF ([Con Id])=' ||lower(a.con_id)|| ' and contains(lower(trim([Instname])),'''||lower(b.instance_name)||''')=true THEN str('''||a.con_id||''') + str(''_'') + str('''||a.name||''') + str(''_'') + str('''||a.dbid||''')' as text
+'ELSEIF ([Con Id])=' ||lower(a.con_id)|| ' and contains(lower(trim([Instname])),'''||lower(SUBSTR(b.instance_name, 0, LENGTH(b.instance_name) - 1))||''')=true THEN str('''||a.con_id||''') + str(''_'') + str('''||a.name||''') + str(''_'') + str('''||a.dbid||''')' as text
 from 
 v$pdbs a, v$instance b;
 spool off
+
+
+
+
+

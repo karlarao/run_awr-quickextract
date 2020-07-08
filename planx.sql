@@ -333,7 +333,8 @@ select ss.snap_id, ss.instance_number node, begin_interval_time, sql_id, plan_ha
 nvl(executions_delta,0) execs,
 (elapsed_time_delta/decode(nvl(executions_delta,0),0,1,executions_delta))/1000000 avg_etime,
 (buffer_gets_delta/decode(nvl(buffer_gets_delta,0),0,1,executions_delta)) avg_lio,
-(io_offload_elig_bytes_delta/decode(nvl(buffer_gets_delta,0),0,1,executions_delta)) avg_offload
+(io_offload_elig_bytes_delta/decode(nvl(buffer_gets_delta,0),0,1,executions_delta)) avg_offload,
+s.parsing_schema_name
 from DBA_HIST_SQLSTAT S, DBA_HIST_SNAPSHOT SS
 where S.sql_id = '&&sql_id.'
 and ss.dbid = :dbid
@@ -1255,16 +1256,17 @@ and username is not null
 and a.sql_id = b.sql_id
 and a.inst_id = b.inst_id
 and a.sql_child_number = b.child_number
-and sql_text not like 'select a.inst_id inst, sid, substr(program,1,19) prog, b.sql_id, child_number child,%' -- don't show this query
-and sql_text not like 'declare%' -- skip PL/SQL blocks
+--and sql_text not like 'select a.inst_id inst, sid, substr(program,1,19) prog, b.sql_id, child_number child,%' -- don't show this query
+--and sql_text not like 'declare%' -- skip PL/SQL blocks
 and a.sql_id = '&&sql_id.'
 order by hours desc, sql_id, child
-/
+..
 
 -- spool off and cleanup
 PRO
 PRO planx_&&_xdbname-&&_instname-&&_xconname-&&sql_id._&&current_time..txt has been generated
-SET FEED ON VER ON LIN 80 PAGES 14 LONG 80 LONGC 80 TRIMS OFF;
+SET FEED ON VER ON LIN 80 PAGES 14 LONG 80 LONGC 80 TRIMS OFF TERM ON;
 SPO OFF;
 UNDEF 1 2
 -- end
+
