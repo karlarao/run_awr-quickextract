@@ -16,37 +16,24 @@ The scripts capture the following data sets:
 > Storage - total storage size, per tablespace size
 > Services - distribution of workload/modules
 > Top SQL - PIOs, LIOs, modules, SQL type, SQL_ID, PX
+> ASH data - detailed session activity (1sec and 10sec intervals)
 
 
 ------------------------------------
-STEP 1: COLLECT AWR DATA
+STEP 1: COLLECT AWR DATA (to be done by the customer)
 ------------------------------------
 
-Unzip the scripts under /home/oracle/dba/run_awr-quickextract
+Unzip the scripts on a directory, for example: /home/oracle/dba/run_awr-quickextract
 
-There are four ways to run the data collection but the end result will all be CSV files which will be consolidated on STEP 2:
+On the server, as SYSDBA run the following script/s on each database 
+        if non-CDB environment:  @run_all.sql 
+        if CDB environment:      @run_all_cdb.sql 
 
-  1a) on the server, as SYSDBA run the run_all.sql on each database (PREFERRED)
-
-  1b) on the server, as Oracle user execute the run_awr on the first node of the cluster, but if you have
-	a spread out node layout across nodes then better to do the run_all.sql on each DB or step 1c below
-
-  1c) on a linux machine or OEM server, do the following
-       - edit the tnsnames.ora and add the TNS entries of all the databases
-       - edit the dblist file with the format <tns entry>,<username>,<password>
-       - check the run_awr_tns file, make sure the TNS_ADMIN and ORACLE_HOME are correct
-       - run the test_run_awr_tns to check if you can login on all the databases
-           there should be no entries under "Fix TNS or dblist entry below:" section, otherwise fix it
-       - run the run_awr_tns
-       - consolidate the tar files
-
-  1d) if you only have a windows environment to run the scripts do the following:
-       - for each DB run on the command prompt sqlplus <username>/<password>@<tns> @run_all
-       - you can create a windows batch file (.bat) to execute the above command on all DBs
+The data collection end result will all be CSV files which will be consolidated on STEP 2
 
 
 ------------------------------------
-STEP 2: CONSOLIDATE ALL FILES
+STEP 2: CONSOLIDATE ALL FILES (to be done by the customer)
 ------------------------------------
 
 After running the scripts consolidate all files in one zip file.
@@ -57,7 +44,7 @@ zip -r csvfiles_$HOSTNAME.zip csvfiles_$HOSTNAME
 
 
 ------------------------------------
-STEP 3: EXTRACT & PACKAGE CSV FILES
+STEP 3: EXTRACT & PACKAGE CSV FILES (to be done by the consultant/troubleshooter)
 ------------------------------------
 
 - This section should be done on your laptop or another server
