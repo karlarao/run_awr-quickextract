@@ -25,7 +25,7 @@ STEP 1: COLLECT AWR DATA (to be done by the customer)
 
 Unzip the scripts on a directory, for example: /home/oracle/dba/run_awr-quickextract
 
-On the server, as SYSDBA run the following script/s on each database 
+On the server, as SYSDBA run the following script on each database 
         if non-CDB environment:  @run_all.sql 
         if CDB environment:      @run_all_cdb.sql 
 
