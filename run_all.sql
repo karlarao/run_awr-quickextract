@@ -36,6 +36,10 @@ SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &
 @run_awr_miner.sql
 @0_parsing_schema.sql
 @0_service_names.sql
+@s01_celliorm.sql
+@s01_cellver.sql
+@s05_obj_size.sql
+@s10_hcc_tables_ts.sql
 
 
 exit
