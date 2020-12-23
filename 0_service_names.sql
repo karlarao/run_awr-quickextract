@@ -10,7 +10,7 @@ select lower(SUBSTR(b.instance_name, 0, LENGTH(b.instance_name) - 1)) name from 
 
 spool service_names-calcfield-&_instname..calc
 set lines 150
-select inst_id, name , service_id from gv$services order by 1;
+select inst_id, name svc_name, service_id from gv$services order by 1;
 spool off
 
 
