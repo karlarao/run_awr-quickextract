@@ -29,6 +29,28 @@ select instance_number instancenumber from v$instance;
 set pagesize 50000
 set linesize 1000
 
+VARIABLE  g_retention  NUMBER
+DEFINE    p_default = 8
+DEFINE    p_max = 300
+SET VERIFY OFF
+DECLARE
+  v_default  NUMBER(3) := &p_default;
+  v_max      NUMBER(3) := &p_max;
+BEGIN
+  select
+    ((TRUNC(SYSDATE) + RETENTION - TRUNC(SYSDATE)) * 86400)/60/60/24 AS RETENTION_DAYS
+    into :g_retention
+  from dba_hist_wr_control
+  where dbid in (select dbid from v$database);
+
+  if :g_retention > v_default then
+    :g_retention := v_max;
+  else
+    :g_retention := v_default;
+  end if;
+END;
+/
+
 spool awr_topsegments-tableau-&_instname-&_hostname..csv
 SELECT
   trim('&_instname') instname,
@@ -147,7 +169,7 @@ FROM
                     AND b.instance_number    = s0.instance_number
                     AND s1.snap_id           = s0.snap_id + 1
                     AND b.snap_id            = s0.snap_id + 1
-                    --AND s0.snap_id = 35547
+                    AND to_date(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') > sysdate - :g_retention
                 GROUP BY
                   s0.snap_id, s0.END_INTERVAL_TIME, s0.instance_number, b.dataobj#, b.obj#, b.dbid
               ) r

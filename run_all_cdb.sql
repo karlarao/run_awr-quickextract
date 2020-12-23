@@ -26,10 +26,10 @@ SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &
 @run_awr_topsql.sql
 @host_cpu.sql
 @&&skip_12c_script.gvash_to_csv_hist.sql
-@&&skip_12c_script.gvash_to_csv.sql
+--@&&skip_12c_script.gvash_to_csv.sql
 @&&skip_11g_script.0_gvash_cdb_calcfield_12c.sql
 @&&skip_11g_script.0_gvash_to_csv_hist_12c.sql
-@&&skip_11g_script.0_gvash_to_csv_12c.sql
+--@&&skip_11g_script.0_gvash_to_csv_12c.sql
 @run_awr_topsegments.sql
 @run_awr_topsegments-space_used.sql
 @run_awr_planx.sql
