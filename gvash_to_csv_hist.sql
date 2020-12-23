@@ -115,7 +115,7 @@ COL current_time NEW_V current_time FOR A15;
 SELECT 'current_time: ' x, TO_CHAR(SYSDATE, 'YYYYMMDD_HH24MISS') current_time FROM DUAL;
 
 COLUMN xconname NEW_VALUE _xconname NOPRINT
-select sys_context('userenv', 'con_name') xconname from dual;
+select 'non-12c' xconname from dual
 
 COLUMN name NEW_VALUE _xdbname NOPRINT
 select name from v$database;
