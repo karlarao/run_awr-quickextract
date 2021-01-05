@@ -31,8 +31,14 @@ SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &
 --@&&skip_11g_script.0_gvash_to_csv_12c.sql
 @run_awr_topsegments.sql
 @run_awr_topsegments-space_used.sql
+@s06_run_awr_topsql_bigobj_topn_v3_by_elap.sql
+@s06_run_awr_topsql_bigobj_topn_v3_by_elap_exec.sql
+@s06_run_awr_topsql_bigobj_topn_v3_by_exec.sql
 @s01_celliorm.sql
 @s01_cellver.sql
+@s02_asmfree.sql
+@s03_db_size.sql
+@s04_ts_size.sql
 @s05_obj_size.sql
 @s10_hcc_tables_ts.sql
 @0_parsing_schema.sql
