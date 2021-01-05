@@ -26,8 +26,9 @@ COLUMN instancenumber NEW_VALUE _instancenumber NOPRINT
 select instance_number instancenumber from v$instance;
 
 -- ttitle center 'AWR Top Segments' skip 2
+col snap_id     format 99999
+col tm          format a17
 set pagesize 50000
-set linesize 1000
 
 VARIABLE  g_retention  NUMBER
 DEFINE    p_default = 8
@@ -51,7 +52,7 @@ BEGIN
 END;
 /
 
-spool awr_topsegments-tableau-&_instname-&_hostname..csv
+spool awr_topsegments-rw-io-tableau-&_instname-&_hostname..csv
 SELECT
   trim('&_instname') instname,
   trim('&_dbid') db_id,
@@ -186,7 +187,7 @@ WHERE
 seg_rank <=5
 order by inst, snap_id, seg_rank asc;
 spool off
-host sed -n -i '2,$ p' awr_topsegments-tableau-&_instname-&_hostname..csv
+host sed -n -i '2,$ p' awr_topsegments-rw-io-tableau-&_instname-&_hostname..csv
 -- host gzip -v awr_topsegments-tableau-&_instname-&_hostname..csv
 -- host tar -cvf awr_topsegments-tableau-&_instname-&_hostname..tar awr_topsegments-tableau-&_instname-&_hostname..csv.gz
 -- host rm awr_topsegments-tableau-&_instname-&_hostname..csv.gz

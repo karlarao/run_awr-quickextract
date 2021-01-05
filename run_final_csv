@@ -32,8 +32,11 @@ done
 find . -name '*awr_topsqlx*.csv' | while read file; do
 cat "$file" >> awr_topsqlx.txt
 done
-find . -name '*awr_topsegments*.csv' | while read file; do
-cat "$file" >> awr_topsegments.txt
+find . -name '*awr_topsegments-rw-io*.csv' | while read file; do
+cat "$file" >> awr_topsegments-rw-io.txt
+done
+find . -name '*awr_topsegments-space-used*.csv' | while read file; do
+cat "$file" >> awr_topsegments-space-used.txt
 done
 find . -name '*awr_iostat_filetype*.csv' | while read file; do
 cat "$file" >> awr_iostat_filetype.txt

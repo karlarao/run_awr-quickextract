@@ -26,8 +26,9 @@ COLUMN instancenumber NEW_VALUE _instancenumber NOPRINT
 select instance_number instancenumber from v$instance;
 
 -- ttitle center 'AWR Top Segments' skip 2
+col snap_id     format 99999
+col tm          format a17
 set pagesize 50000
-set linesize 1000
 
 VARIABLE  g_retention  NUMBER
 DEFINE    p_default = 8
