@@ -169,7 +169,7 @@ FROM
                     AND b.instance_number    = s0.instance_number
                     AND s1.snap_id           = s0.snap_id + 1
                     AND b.snap_id            = s0.snap_id + 1
-                    AND to_date(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') > sysdate - :g_retention
+                    AND s0.END_INTERVAL_TIME > sysdate - :g_retention
                 GROUP BY
                   s0.snap_id, s0.END_INTERVAL_TIME, s0.instance_number, b.dataobj#, b.obj#, b.dbid
               ) r
