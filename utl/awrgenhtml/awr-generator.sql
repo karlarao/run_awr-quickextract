@@ -31,7 +31,7 @@ set verify off
 set timing off
 
 -- Set AWR_FORMAT to "text" or "html"
-define AWR_FORMAT = 'text'
+define AWR_FORMAT = 'html'
 define DEFAULT_OUTPUT_FILENAME = 'awr-generate.sql'
 define NO_ADDM = 0
 
