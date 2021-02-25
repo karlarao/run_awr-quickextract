@@ -1,6 +1,6 @@
 
 
-define SQL_TOP_N = 3
+define SQL_TOP_N = 2
 
 set head off verify off feed off
 
