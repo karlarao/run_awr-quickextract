@@ -57,3 +57,6 @@ echo "DBNAME, CON_ID, INSTNAME, INST_ID , SAMPLE_ID , TM, TMS, SAMPLE_TIME , SES
 find . -name 'myash*.csv' | grep -v hist | while read file; do
 cat myash-header.sql "$file" >> myash.txt
 done
+
+
+awk '{ print FILENAME ", " $0 }' awr_topsql_bigobj_by_* > topn.csv
