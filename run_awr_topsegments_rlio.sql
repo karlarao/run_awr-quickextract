@@ -165,7 +165,6 @@ FROM
                     s0.dbid                  = &_dbid
                     AND s1.dbid              = s0.dbid
                     AND b.dbid               = s0.dbid
-                    --AND s0.instance_number   = &_instancenumber
                     AND s1.instance_number   = s0.instance_number
                     AND b.instance_number    = s0.instance_number
                     AND s1.snap_id           = s0.snap_id + 1

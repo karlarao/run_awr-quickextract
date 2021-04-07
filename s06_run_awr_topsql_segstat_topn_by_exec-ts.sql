@@ -139,7 +139,6 @@ select trim('&_dbname') db , a.*, st.sqldetail sqldetail from
                                                                                                             s0.dbid                  = &_dbid
                                                                                                             AND s1.dbid              = s0.dbid
                                                                                                             AND b.dbid               = s0.dbid
-                                                                                                            --AND s0.instance_number   = &_instancenumber
                                                                                                             AND s1.instance_number   = s0.instance_number
                                                                                                             AND b.instance_number    = s0.instance_number
                                                                                                             AND s1.snap_id           = s0.snap_id + 1
@@ -163,7 +162,6 @@ select trim('&_dbname') db , a.*, st.sqldetail sqldetail from
                                     WHERE s0.dbid                   = &_dbid                -- CHANGE THE DBID HERE!
                                                     AND s1.dbid               = s0.dbid
                                                     and s.dbid                = s0.dbid
-                                                    --AND s0.instance_number    = &_instancenumber      -- CHANGE THE INSTANCE_NUMBER HERE!
                                                     AND s1.instance_number    = s0.instance_number
                                                     and s.instance_number     = s0.instance_number
                                                     AND s1.snap_id            = s0.snap_id + 1
