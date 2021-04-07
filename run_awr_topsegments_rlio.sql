@@ -64,7 +64,7 @@ SELECT
   object_name,
   subobject_name,
   object_type,
-  physical_r,
+  physical_rlio,
   LOGICAL_READS_DELTA,
   BUFFER_BUSY_WAITS_DELTA,
   DB_BLOCK_CHANGES_DELTA,
