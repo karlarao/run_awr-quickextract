@@ -78,7 +78,9 @@ with st_temp as (select a.sql_id, a.dbid, a.sql_text, a.sqldetail
                  )
 select trim('&_dbname') db , a.*, st.sqldetail sqldetail from
                           (
-                            SELECT s0.snap_id snap_id, s0.END_INTERVAL_TIME tm, s0.instance_number inst,
+                            SELECT s0.snap_id snap_id, 
+                                   TO_CHAR(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') tm,
+                                   s0.instance_number inst,
                                    s.parsing_schema_name pschema,
                                    s.module module,
                                    spacesql.object_name obj_name, 
