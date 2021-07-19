@@ -1,8 +1,4 @@
-
-set feedback off pages 0 term off head on und off trimspool on echo off lines 4000 colsep ','
-set arraysize 5000
-set termout off
-set echo off verify off
+set feedback off term off head on und off trimspool on echo off lines 4000 colsep ',' arraysize 5000 verify off newpage none
 
 COLUMN dbid NEW_VALUE _dbid NOPRINT
 select dbid from v$database;
@@ -51,15 +47,6 @@ END;
 /
 
 
-set pagesize 50000
-set linesize 1500
-
-col obj_name format a32
-col sql_text format a20
-col pschema format a20
-col module format a50
-col db format a20
-col sqldetail format a50
 col fms format 99999999999999999999999999
 
 spool awr_topsql_segstat_topn_by_exec-ts-&_instname-&_conname-&_conid..csv
@@ -78,9 +65,7 @@ with st_temp as (select a.sql_id, a.dbid, a.sql_text, a.sqldetail
                  )
 select trim('&_dbname') db , a.*, st.sqldetail sqldetail from
                           (
-                            SELECT s0.snap_id snap_id, 
-                                   TO_CHAR(s0.END_INTERVAL_TIME,'MM/DD/YY HH24:MI:SS') tm,
-                                   s0.instance_number inst,
+                            SELECT s0.snap_id snap_id, s0.END_INTERVAL_TIME tm, s0.instance_number inst,
                                    s.parsing_schema_name pschema,
                                    s.module module,
                                    spacesql.object_name obj_name, 
