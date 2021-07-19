@@ -1,4 +1,8 @@
-set feedback off term off head on und off trimspool on echo off lines 4000 colsep ',' arraysize 5000 verify off newpage none
+
+set feedback off pages 0 term off head on und off trimspool on echo off lines 4000 colsep ','
+set arraysize 5000
+set termout off
+set echo off verify off
 
 COLUMN dbid NEW_VALUE _dbid NOPRINT
 select dbid from v$database;
@@ -47,7 +51,9 @@ END;
 /
 
 
-set lines 500
+set pagesize 50000
+set linesize 1500
+
 col obj_name format a32
 col sql_text format a20
 col pschema format a20
