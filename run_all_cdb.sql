@@ -32,6 +32,10 @@ SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &
 --@&&skip_11g_script.0_gvash_to_csv_12c.sql
 @run_awr_topsegments_rw_io.sql
 @run_awr_topsegments_space_used.sql
+@run_awr_topsegments_rlio.sql
+@run_awr_topsql_rlio.sql
+@s06_run_awr_topsql_segstat_topn_by_exec-ts.sql
+@s06_run_awr_topsql_segstat_topn_by_exec.sql
 @s06_run_awr_topsql_bigobj_topn_v3_by_elap.sql
 @s06_run_awr_topsql_bigobj_topn_v3_by_elap_exec.sql
 @s06_run_awr_topsql_bigobj_topn_v3_by_exec.sql
@@ -44,8 +48,8 @@ SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &
 @s10_hcc_tables_ts.sql
 @0_parsing_schema.sql
 @0_service_names.sql
--- @run_awr_planx.sql
--- @run_esp_master.sql
--- @run_awr_miner.sql
+@run_awr_planx.sql
+@run_esp_master.sql
+@run_awr_miner.sql
 
 exit
