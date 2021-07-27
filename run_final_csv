@@ -65,3 +65,6 @@ awk '{ print FILENAME ", " $0 }' awr_topsql_bigobj_by_* > topn.csv
 find . -name '*esp_requirements*.csv' | while read file; do
 cat "$file" >> esp.txt
 done
+
+head -n1 esp.txt > instance_mapping.txt
+cat esp.txt | grep -i host_name >> instance_mapping.txt

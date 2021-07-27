@@ -86,13 +86,13 @@ COL esp_collection_yyyymmdd NEW_V esp_collection_yyyymmdd FOR A8;
 SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 
 -- AWR collector
-@@&&skip_awr.sql/escp_collect_awr.sql
+-- @@&&skip_awr.sql/escp_collect_awr.sql
 @@&&skip_awr.sql/esp_collect_requirements_awr.sql
-@@&&skip_awr.sql/resources_requirements_awr.sql
+-- @@&&skip_awr.sql/resources_requirements_awr.sql
 
 -- STATSPACK collector
-@@&&skip_statspack.sql/esp_collect_requirements_statspack.sql
-@@&&skip_statspack.sql/resources_requirements_statspack.sql
+-- @@&&skip_statspack.sql/esp_collect_requirements_statspack.sql
+-- @@&&skip_statspack.sql/resources_requirements_statspack.sql
 
 -- DB Features
 @@sql/features_use.sql

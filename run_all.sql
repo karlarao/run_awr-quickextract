@@ -28,6 +28,7 @@ SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &
 @&&skip_12c_script.gvash_to_csv_hist.sql
 --@&&skip_12c_script.gvash_to_csv.sql
 @&&skip_11g_script.0_gvash_to_csv_hist_12c.sql
+@&&skip_11g_script.0_gvash_to_csv_hist_12c_8_16.sql
 --@&&skip_11g_script.0_gvash_to_csv_12c.sql
 @run_awr_topsegments_rw_io.sql
 @run_awr_topsegments_space_used.sql
@@ -47,9 +48,9 @@ SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &
 @s10_hcc_tables_ts.sql
 @0_parsing_schema.sql
 @0_service_names.sql
-@run_awr_planx.sql
+-- @run_awr_planx.sql
 @run_esp_master.sql
-@run_awr_miner.sql
+-- @run_awr_miner.sql
 
 
 exit
